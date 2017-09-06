@@ -26,9 +26,7 @@ const populatePosts = () => {
   });
   return Promise.all(promises)
     .then((result) => {
-      console.log('done', result);
-      mongoose.disconnect();
-      return result;
+      console.log('done');
     })
     .catch((err) => {
       console.log('ERROR', err);
