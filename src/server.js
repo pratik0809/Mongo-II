@@ -62,4 +62,40 @@ server.get('/top-answer/:soID', (req, res) => {
     });
 });
 
+server.get('/popular-jquery-questions', (req, res) => {
+  Posts.find({
+    $and: [
+         { tags: 'jquery' },
+      { $or: [
+             { score: { $gt: 5000 } },
+             { 'user.reputation': { $gt: 200000 } }
+      ]
+      }
+    ]
+  })
+  .exec()
+  .then((topAnswers) => {
+    if (!topAnswers) throw new Error('No top answers found.');
+    res.json(topAnswers);
+  })
+  .catch(({ message }) => {
+    res.status(STATUS_USER_ERROR);
+    res.json({ Error: message });
+  });
+});
+
+server.get('/npm-answers', (req, res) => {
+  Posts.find({ tags: 'npm' }).exec()
+  .then((npmQuestions) => {
+    const npmQuestionIDs = npmQuestions.map(npmQuestion => npmQuestion.soID);
+    Posts.find({ parentID: { $in: npmQuestionIDs } })
+    .then((npmAnswers) => {
+      res.json(npmAnswers);
+    });
+  })
+  .catch(({ message }) => {
+    res.status(STATUS_USER_ERROR);
+    res.json({ Error: message });
+  });
+});
 module.exports = { server };
